@@ -7,6 +7,18 @@
 #include <PinChangeIntConfig.h>
 #include <SONAR.h>
 
+#include "pb_encode.h"
+#include "pb_decode.h"
+#include "mecanum.pb.h"
+#include <stdio.h>
+
+#define TEST(x) \
+    if (!(x)) { \
+        Serial.println("FAILED"); \
+    } else { \
+        Serial.println("OK"); \
+    }
+
 /*
 ************************************************************************************
                                      Sonar:0x12
@@ -155,16 +167,23 @@ void setup() {
     Omni.PIDEnable(0.35,0.02,0,10);
 
     Serial.println("Start test");
-    // Omni.setCarMove(70,0,0.1);
-    // delay(2000);
-    // Omni.setCarMove(0,0,0);
-    // delay(2000);
     Serial.println("Go ahead");
     goAhead(100);
     delay(2000);
     Serial.println("All stop");
     allStop(0);
     delay(2000);
+    Serial.println("End test");
+
+    Serial.println("Start test");
+    int status = 0;
+
+    uint8_t buffer[256];
+    pb_ostream_t ostream;
+    pb_istream_t istream;
+    size_t written;
+
+    
     Serial.println("End test");
 }
 
