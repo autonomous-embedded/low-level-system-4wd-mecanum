@@ -156,7 +156,7 @@ void loop() {
     // TODO: 
     
     //Omni.demoActions(30,5000,500,false);
-    // demoWithSensors(160,20);
+    demoWithSensors(160,20);
     //Omni.PIDRegulate();
 }
 
