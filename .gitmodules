@@ -1,0 +1,4 @@
+[submodule "program/main_program_Omni4WD/mecanum-if"]
+	path = program/main_program_Omni4WD/mecanum-if
+	url = git@github.com:autonomous-embedded/mecanum-if.git
+	branch = master
