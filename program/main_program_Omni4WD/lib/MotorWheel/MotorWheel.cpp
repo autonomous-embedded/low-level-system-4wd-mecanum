@@ -1,4 +1,5 @@
 #include<MotorWheel.h>
+#include"SONAR.h"
 
 Motor::Motor(unsigned char _pinPWM,unsigned char _pinDir,
 				unsigned char _pinIRQ,unsigned char _pinIRQB,
@@ -237,6 +238,53 @@ bool Motor::PIDRegulate(bool doRegulate) {
 	return false;
 }
  */
+#define SIMPLE_REGULATE_DELAY_MS 1
+
+void Motor::simpleRegulate(unsigned int regulate_time_ms) {	// to be improved
+	if(getPinIRQB()!=PIN_UNDEFINED && getDesiredDir()!=getCurrDir()) {
+		speedRPMInput=-SPEEDPPS2SPEEDRPM(isr->speedPPS);
+	} else {
+		speedRPMInput=SPEEDPPS2SPEEDRPM(isr->speedPPS);
+	}
+
+	// Apply desired speed immediately if regulation time is 0
+	if (regulate_time_ms == 0) {
+		runPWM(map(speedRPMDesired,0,MAX_SPEEDRPM,0,MAX_PWM),getDesiredDir(),true);
+		return;
+	}
+	else {
+		int speedDelta=speedRPMInput-speedRPMDesired;
+		int setpoint_speedRPMI = speedRPMInput;
+		int quantization_step = speedDelta / (regulate_time_ms / SIMPLE_REGULATE_DELAY_MS);
+		
+		unsigned int startTime=millis();
+		unsigned int i = 0;
+		while(millis()-startTime<regulate_time_ms) 
+		{
+			setpoint_speedRPMI += quantization_step;
+			if (setpoint_speedRPMI > MAX_SPEEDRPM) {
+				setpoint_speedRPMI = MAX_SPEEDRPM;
+			}
+			else if (setpoint_speedRPMI < -MAX_SPEEDRPM) {
+				setpoint_speedRPMI = -MAX_SPEEDRPM;
+			}
+
+			if (setpoint_speedRPMI >= 0) {
+				runPWM(map(setpoint_speedRPMI,0,MAX_SPEEDRPM,0,MAX_PWM),getDesiredDir(),true);
+			}
+			else {
+				runPWM(map(abs(setpoint_speedRPMI),0,MAX_SPEEDRPM,0,MAX_PWM),!getDesiredDir(),true);
+			}
+
+			i++;
+			delay(SIMPLE_REGULATE_DELAY_MS);
+		}
+		
+		// Set desired speed at the end of the regulation
+		runPWM(map(speedRPMDesired,0,MAX_SPEEDRPM,0,MAX_PWM),getDesiredDir(),true);
+	}
+}
+
 /*
 void Motor::simpleRegulate() {	// to be improved
 	if(getDesiredDir()==DIR_ADVANCE) speedRPMInput=SPEEDPPS2SPEEDRPM(isr->speedPPS);
@@ -313,9 +361,9 @@ void Motor::debugger() const {
 	Serial.println(speedPWM,DEC);
 	Serial.print("Input  -> ");
 	Serial.println(speedRPMInput,DEC);
-	Serial.print("Output -> ");
+	Serial.print("Output speed RPM -> ");
 	Serial.println(speedRPMOutput,DEC);
-	Serial.print("Desired-> ");
+	Serial.print("Desired speed RPM -> ");
 	Serial.println(speedRPMDesired,DEC);
  
 /*
@@ -329,6 +377,54 @@ void Motor::debugger() const {
 
 #endif
 
+}
+
+void Motor::print_info() const {	
+	debug()
+
+	/* Check if the serial port is available */
+	if (Serial)
+	{
+		Serial.print("Motor (address) -> ");
+		Serial.println((long unsigned int)this,HEX);
+		Serial.println("=====================================");
+
+		Serial.print("pinPWM -> ");
+		Serial.println(pinPWM,DEC);
+		Serial.print("pinDir -> ");
+		Serial.println(pinDir,DEC);
+		Serial.print("pinIRQ -> ");
+		Serial.println(isr->pinIRQ,DEC);
+		Serial.print("pinIRQB-> ");
+		Serial.println(isr->pinIRQB,DEC);
+
+		Serial.print("DesiredDir -> ");
+		Serial.println(desiredDirection);
+		Serial.print("currDir ->");
+		Serial.println(isr->currDirection);
+
+		Serial.print("PWM    -> ");
+		Serial.println(speedPWM,DEC);
+		Serial.print("Input speed RPM -> ");
+		Serial.println(speedRPMInput,DEC);
+		Serial.print("Output speed RPM -> ");
+		Serial.println(speedRPMOutput,DEC);
+		Serial.print("Desired speed RPM -> ");
+		Serial.println(speedRPMDesired,DEC);
+
+		Serial.print("speed2DutyCycle-> ");
+		Serial.println(speed2DutyCycle);
+		Serial.print("speedPPS -> ");
+		Serial.println(isr->speedPPS,DEC);
+		Serial.print("pulses -> ");
+		Serial.println(isr->pulses,DEC);
+		Serial.println("=====================================");
+		Serial.println();
+	}
+}
+
+int Motor::getSpeedRPMDesired() {
+	return speedRPMDesired;
 }
 
 

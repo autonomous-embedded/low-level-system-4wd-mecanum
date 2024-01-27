@@ -270,7 +270,7 @@ public:
 	unsigned int setSpeedRPM(int speedRPM,bool dir);	// preserve
 	int setSpeedRPM(int speedRPM);
 	
-	//void simpleRegulate();
+	void simpleRegulate(unsigned int regulate_time_ms);
 
 	bool PIDSetup(float kc=KC,float taui=TAUI,float taud=TAUD,unsigned int sampleTime=1000);
 	bool PIDGetStatus() const;
@@ -283,12 +283,15 @@ public:
 
 	void delayMS(unsigned int ms,bool debug=false);
 	void debugger() const;
+	void print_info() const;
 
 	//int getAccPPSS() const;
 	int getSpeedPPS() const;
 	long getCurrPulse() const;
 	long setCurrPulse(long _pulse);
 	long resetCurrPulse();
+
+	int getSpeedRPMDesired();
 	
 	struct ISRVars* isr;
 
