@@ -92,6 +92,7 @@ unsigned char sonarsUpdate()
     return sonarCurr;
 }
 
+#ifdef PRINT_DEBUG_MESSAGES
 void print_wheel_speeds(void)
 {
     Serial.println("Wheel speeds:");
@@ -104,6 +105,7 @@ void print_wheel_speeds(void)
     Serial.print("LR: ");
     Serial.println(Omni.wheelLRGetSpeedMMPS());
 }
+#endif
 
 void setup()
 {
@@ -143,7 +145,9 @@ void loop()
         // Check if the buffer is full, you may adjust the buffer size as needed
         if (bytesRead >= sizeof(receivedBuffer))
         {
+#ifdef PRINT_DEBUG_MESSAGES
             Serial.println("Error: Received data exceeds buffer size");
+#endif
             return;
         }
     }
@@ -159,6 +163,7 @@ void loop()
         if (pb_decode(&istream, &ControlRequest_msg, &receivedControlRequest))
         {
             // Successfully decoded a ControlRequest message
+#ifdef PRINT_DEBUG_MESSAGES
             Serial.println("Received ControlRequest message:");
             Serial.print("Speed: ");
             Serial.println(receivedControlRequest.speed_mmps);
@@ -166,6 +171,7 @@ void loop()
             Serial.println(receivedControlRequest.rad);
             Serial.print("Angular Velocity: ");
             Serial.println(receivedControlRequest.omega);
+#endif
 
             // Set the message received flag
             messageReceived = true;
@@ -173,10 +179,12 @@ void loop()
             // Reset the lastmillis
             lastmillis = millis();
         }
+#ifdef PRINT_DEBUG_MESSAGES
         else
         {
             Serial.println("Error decoding ControlRequest message");
         }
+#endif
 
         // Reset bytesRead after processing the message
         bytesRead = 0;
@@ -185,7 +193,9 @@ void loop()
     if (messageReceived)
     {
         // Set the car
+#ifdef PRINT_DEBUG_MESSAGES
         Serial.println("Set the car");
+#endif
         Omni.setCarMove(receivedControlRequest.speed_mmps,
                         receivedControlRequest.rad,
                         receivedControlRequest.omega);

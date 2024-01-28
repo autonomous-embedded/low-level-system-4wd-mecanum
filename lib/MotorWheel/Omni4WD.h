@@ -87,8 +87,10 @@ public:
 	void demoActions(unsigned int speedMMPS=100,unsigned int duration=5000,unsigned int uptime=500,bool debug=false);
 	void debugger(bool wheelULDebug=true,bool wheelLLDebug=true,
 					bool wheelLRDebug=true,bool wheelURDebug=true) const;
+#ifdef PRINT_DEBUG_MESSAGES
 	void print_info(bool wheelULDebug=true,bool wheelLLDebug=true,
 					bool wheelLRDebug=true,bool wheelURDebug=true) const;
+#endif
 
 	enum {STAT_UNKNOWN,
 			STAT_STOP,
