@@ -72,6 +72,27 @@ unsigned int Omni4WD::setCarStop(unsigned int mm) {
 	return setMotorAllStop();
 }
 
+float Omni4WD::setCarRad (float rad) {
+	_carRad = fmod(rad, 2*PI);
+
+	return _carRad;
+}
+
+float Omni4WD::getCarRad() const {
+	return _carRad;
+}
+
+float Omni4WD::setCarOmega (float omega) {
+	_carOmega = omega;
+
+	return _carOmega;
+}
+
+float Omni4WD::getCarOmega() const {
+	return _carOmega;
+}
+
+
 // 201208
 // Mecanum Wheel Control Summary.pdf
 // V1=Vty+Vtx-w(a+b)
@@ -80,11 +101,15 @@ unsigned int Omni4WD::setCarStop(unsigned int mm) {
 // V4=Vty-Vtx+w(a+b)
 // To implememt Omni4WD::setCarMove(), MotorWheel::setSpeedMMPS() was re-written as plus-minus/direction sensitive.
 int Omni4WD::setCarMove(int speedMMPS,float rad,float omega) {
+	setCarRad(rad);
+	setCarOmega(omega);
+
 	//wheelULSetSpeedMMPS(speedMMPS*sin(rad)+speedMMPS*cos(rad)-omega*WHEELSPAN);
 	//wheelLLSetSpeedMMPS(speedMMPS*sin(rad)-speedMMPS*cos(rad)-omega*WHEELSPAN);
 	//wheelLRSetSpeedMMPS(speedMMPS*sin(rad)+speedMMPS*cos(rad)+omega*WHEELSPAN);
 	//wheelURSetSpeedMMPS(speedMMPS*sin(rad)-speedMMPS*cos(rad)+omega*WHEELSPAN);
 
+	// Calculate individual wheel speeds based on the Mecanum wheel control equations
 	wheelULSetSpeedMMPS(speedMMPS*sin(rad)+speedMMPS*cos(rad)-omega*WHEELSPAN);
 	wheelLLSetSpeedMMPS(speedMMPS*sin(rad)-speedMMPS*cos(rad)-omega*WHEELSPAN);
 	wheelLRSetSpeedMMPS(-(speedMMPS*sin(rad)+speedMMPS*cos(rad)+omega*WHEELSPAN));
@@ -312,6 +337,17 @@ bool Omni4WD::PIDDisable() {
 	_wheelUR->PIDDisable(); _wheelUR->runPWM(0,DIR_ADVANCE);
 	return false;
 }
+
+void Omni4WD::runPWM() {
+	MotorWheel * p_wheels[4]={_wheelUL,_wheelLL,_wheelLR,_wheelUR};
+	bool dir;
+
+	for (int i=0;i<4;++i) {
+		dir = (p_wheels[i]->getDesiredDir());
+		p_wheels[i]->runPWM(map(abs(p_wheels[i]->getSpeedRPMDesired()),0,MAX_SPEEDRPM,0,MAX_PWM),dir, true);
+	}
+}
+
 bool Omni4WD::PIDGetStatus() {
 	return _wheelUL->PIDGetStatus() && _wheelLL->PIDGetStatus() && _wheelLR->PIDGetStatus() && _wheelUR->PIDGetStatus();
 }
@@ -346,7 +382,18 @@ void Omni4WD::delayMS(unsigned int ms,bool debug,unsigned char* actBreak) {		// 
 		else delay(endTime-millis());
 	}
 }
-		// new one
+
+void Omni4WD::simpleRegulate(unsigned int regulate_time_ms)
+{
+	unsigned long endTime=millis()+regulate_time_ms;
+	while(millis()<endTime) 
+	{
+		PIDRegulate();
+		delay(SAMPLETIME);
+	}
+}
+
+// new one
 void Omni4WD::demoActions(unsigned int speedMMPS,unsigned int duration,
 		unsigned int uptime,bool debug) {
 		int (Omni4WD::*carAction[])(int speedMMPS)={
@@ -427,6 +474,34 @@ void Omni4WD::debugger(bool wheelULDebug,bool wheelLLDebug,bool wheelLRDebug,boo
 	if(wheelURDebug) _wheelUR->debugger();
 }
 
+void Omni4WD::print_info(bool wheelULDebug,bool wheelLLDebug,bool wheelLRDebug,bool wheelURDebug) const {
+	if(wheelULDebug) 
+	{
+		Serial.println("Wheel UL (Upper Left):");
+		_wheelUL->print_info();
+	}
 
+	if(wheelURDebug) 
+	{
+		Serial.println("Wheel UR (Upper Right):");
+		_wheelUR->print_info();
+	}
 
+	if(wheelLLDebug) 
+	{
+		Serial.println("Wheel LL (Lower Left):");
+		_wheelLL->print_info();
+	}
 
+	if(wheelLRDebug) 
+	{
+		Serial.println("Wheel LR (Lower Right):");
+		_wheelLR->print_info();
+	}
+
+	Serial.print("Car Rad (rad): ");
+	Serial.println(getCarRad());
+
+	Serial.print("Car Omega (rad/s): ");
+	Serial.println(getCarOmega());
+}
