@@ -283,7 +283,9 @@ public:
 
 	void delayMS(unsigned int ms,bool debug=false);
 	void debugger() const;
+#ifdef PRINT_DEBUG_MESSAGES
 	void print_info() const;
+#endif
 
 	//int getAccPPSS() const;
 	int getSpeedPPS() const;

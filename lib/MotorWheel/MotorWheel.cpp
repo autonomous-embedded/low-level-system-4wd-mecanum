@@ -379,6 +379,7 @@ void Motor::debugger() const {
 
 }
 
+#ifdef PRINT_DEBUG_MESSAGES
 void Motor::print_info() const {	
 	debug()
 
@@ -422,6 +423,7 @@ void Motor::print_info() const {
 		Serial.println();
 	}
 }
+#endif
 
 int Motor::getSpeedRPMDesired() {
 	return speedRPMDesired;

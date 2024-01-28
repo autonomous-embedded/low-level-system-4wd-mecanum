@@ -474,6 +474,7 @@ void Omni4WD::debugger(bool wheelULDebug,bool wheelLLDebug,bool wheelLRDebug,boo
 	if(wheelURDebug) _wheelUR->debugger();
 }
 
+#ifdef PRINT_DEBUG_MESSAGES
 void Omni4WD::print_info(bool wheelULDebug,bool wheelLLDebug,bool wheelLRDebug,bool wheelURDebug) const {
 	if(wheelULDebug) 
 	{
@@ -505,3 +506,4 @@ void Omni4WD::print_info(bool wheelULDebug,bool wheelLLDebug,bool wheelLRDebug,b
 	Serial.print("Car Omega (rad/s): ");
 	Serial.println(getCarOmega());
 }
+#endif
