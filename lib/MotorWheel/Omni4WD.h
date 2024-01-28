@@ -73,6 +73,9 @@ public:
 	unsigned int wheelLRSetSpeedMMPS(unsigned int speedMMPS,bool dir);
 	int wheelLRSetSpeedMMPS(int speedMMPS);
 
+	void runPWM();
+
+	void Omni4WD::simpleRegulate(unsigned int regulate_time_ms);
 	bool PIDEnable(float kc=KC,float taui=TAUI,float taud=TAUD,unsigned int interval=1000);
 	bool PIDDisable();		// 201209
 	bool PIDGetStatus();	// 201209
@@ -83,6 +86,8 @@ public:
 	void delayMS(unsigned int ms=100, bool debug=false,unsigned char* actBreak = 0);
 	void demoActions(unsigned int speedMMPS=100,unsigned int duration=5000,unsigned int uptime=500,bool debug=false);
 	void debugger(bool wheelULDebug=true,bool wheelLLDebug=true,
+					bool wheelLRDebug=true,bool wheelURDebug=true) const;
+	void print_info(bool wheelULDebug=true,bool wheelLLDebug=true,
 					bool wheelLRDebug=true,bool wheelURDebug=true) const;
 
 	enum {STAT_UNKNOWN,
@@ -107,10 +112,13 @@ public:
 	};
 	unsigned char getSwitchMotorsStat() const;
 	unsigned int getWheelspan() const;
-	
+
+	float getCarRad() const;
+	float getCarOmega() const;
+
 private:
-	MotorWheel* _wheelUL;	// UpperLeft
 	MotorWheel* _wheelLL;	// LowerLeft
+	MotorWheel* _wheelUL;	// UpperLeft
 	MotorWheel* _wheelLR;	// LowerRight
 	MotorWheel* _wheelUR;	// UpperRight
 
@@ -121,6 +129,12 @@ private:
 
 	unsigned char _switchMotorsStat;
 	unsigned char setSwitchMotorsStat(unsigned char switchMotorsStat);
+
+	float _carRad;
+	float setCarRad(float rad);
+
+	float _carOmega;
+	float setCarOmega(float omega);
 
 	Omni4WD();	
 
