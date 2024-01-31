@@ -10,3 +10,7 @@ in the development cycle.
 
 More information about PlatformIO Unit Testing:
 - https://docs.platformio.org/en/latest/advanced/unit-testing/index.html
+
+## Tests
+Below is a list of tests that are implemented in this project:
+- `test_mecanum_if.cpp` - Test of the messages implemented in the `mecanum.proto` file located in the `mecanum-if/protobuf` directory.
