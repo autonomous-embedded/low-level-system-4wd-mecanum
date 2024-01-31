@@ -12,6 +12,12 @@
 #include "mecanum.pb.h"
 #include <stdio.h>
 
+/* 
+ * Timeout for waiting for a message from the controller in milliseconds,
+ * after which the car will stop. 
+ */
+#define MESSAGE_TIMEOUT_MS 1000
+
 /*
 ************************************************************************************
                                      Sonar:0x12
@@ -112,20 +118,23 @@ void setup()
     TCCR1B = TCCR1B & 0xf8 | 0x01; // Pin9,Pin10 PWM 31250Hz
     TCCR2B = TCCR2B & 0xf8 | 0x01; // Pin3,Pin11 PWM 31250Hz
 
-    delay(500);
+    delay(100);
 
     SONAR::init(13);
+
+    /* Disabling PID couses all the wheels to stop imidiately */
+    Omni.PIDDisable();
+    delay(100);
 
     Omni.PIDEnable(0.35, 0.02, 0, 10);
 }
 
 // Message received flag
 bool messageReceived = false;
+static unsigned long lastMessageTime = 0;
 
 void loop()
 {
-    static unsigned long lastmillis = 0;
-
     // Buffer to store incoming data
     uint8_t receivedBuffer[256];
     size_t bytesRead = 0;
@@ -176,8 +185,8 @@ void loop()
             // Set the message received flag
             messageReceived = true;
 
-            // Reset the lastmillis
-            lastmillis = millis();
+            // Reset the lastMessageTime
+            lastMessageTime = millis();
         }
 #ifdef PRINT_DEBUG_MESSAGES
         else
@@ -205,6 +214,20 @@ void loop()
 
         // Set the LED on
         digitalWrite(LED_BUILTIN, HIGH);
+    }
+    else if (millis() - lastMessageTime > MESSAGE_TIMEOUT_MS)
+    {
+        // Stop the car
+#ifdef PRINT_DEBUG_MESSAGES
+        Serial.println("Stop the car");
+#endif
+        Omni.setCarMove(0, 0, 0);
+
+        // Calculate PID and run PWM
+        Omni.delayMS(200);
+
+        // Set the LED off
+        digitalWrite(LED_BUILTIN, LOW);
     }
     messageReceived = false;
 }
