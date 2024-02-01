@@ -13,4 +13,4 @@ More information about PlatformIO Unit Testing:
 
 ## Tests
 Below is a list of tests that are implemented in this project:
-- `test_mecanum_if.cpp` - Test of the messages implemented in the `mecanum.proto` file located in the `mecanum-if/protobuf` directory.
+- `test_protobuf_messages.c` - Test of the messages implemented in the `mecanum.proto` file located in the `mecanum-if/protobuf` directory.

@@ -6,8 +6,11 @@ Low-level system workspace for Autonomous Mecanum Car project.
 
 Low-level system is designed to control the movement of the Nexus 4WD Mecanum robot. The robot is equipped with four DC motors with encoders and four ultrasonic sensors.
 
-As a microcontroller, the Arduino Diecimila board is used. The system is implemented in C++ using the [PlatformIO](https://platformio.org/) toolset.
-Microcontroller communicates is responsible for receiving commands from the high-level system and controlling the motors of the robot accordingly.
+As a microcontroller, the Arduino Diecimila board is used. The system is implemented in C++ using the [PlatformIO](https://platformio.org/) toolset.  
+Microcontroller is responsible for:
+- receiving commands from the high-level system,
+- controlling the motors of the robot accordingly to the received commands,
+- applying the PID control to the motors.
 
 ### Communication
 The system communicates with the high-level system via the serial port. The communication protocol is defined in the `mecanum.proto` file located in the `mecanum-if/protobuf` directory.

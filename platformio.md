@@ -23,7 +23,7 @@ For information about installing the PlatformIO extension, see the [official doc
 > **Note:** If you want to monitor the serial port output of the Arduino Diecimila board, you can use the PlatformIO Monitor by clicking the `Monitor` button in the PlatformIO sidebar.
 
 #### Build options
-For a project two build evirnoments are defined in the `platformio.ini` file:
+For a project two build environments  are defined in the `platformio.ini` file:
 - diecimilaatmega328-release - Release build environment for the Arduino Diecimila board, which does not support debugging messages via the serial port.
 - diecimilaatmega328-debug - Debug build environment for the Arduino Diecimila board, which supports debugging messages via the serial port.
 
